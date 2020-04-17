@@ -48,7 +48,6 @@ export class UsersService implements IUsersService {
 
         const token = new Token(
             id,
-            access_token,
             refresh_token
         );
 
@@ -66,10 +65,7 @@ export class UsersService implements IUsersService {
             const { result } = await this.repository.deleteOne({ id });
             return { ok: Boolean(result.ok), error: null };
         } catch (error) {
-            return {
-                ok: false,
-                error: error.message
-            };
+            return { ok: false, error: error.message };
         }
     }
 
@@ -90,7 +86,7 @@ export class UsersService implements IUsersService {
         await this.authRepository.updateOne(
             { clientId: user.id },
             {
-                $set: { clientId: user.id, access_token, refresh_token }
+                $set: { clientId: user.id, refresh_token }
             }
         );
 

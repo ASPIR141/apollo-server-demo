@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 
 export class AuthUtil {
-    public static verifyToken(token: string) {
+    public static validateTokenAndGetUser(token: string) {
         try {
             if (token) {
                 return jwt.verify(token.split(' ')[1], process.env.TOKEN_SECRET);

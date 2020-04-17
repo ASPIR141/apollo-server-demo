@@ -2,51 +2,26 @@ require('dotenv').config();
 
 import { ApolloServer, makeExecutableSchema } from 'apollo-server';
 import { applyMiddleware } from 'graphql-middleware';
-import { mergeResolvers } from 'merge-graphql-schemas';
 
 import typeDefs from './typeDefs';
 import permissions from './graphql/permissions';
 import { AuthUtil } from './utils/auth';
 
-import { TYPE } from './ioc/types';
 import { container } from './ioc';
-import { IChannelsService } from './services/interfaces/IChannelsService';
-import { IMessagesService } from './services/interfaces/IMessagesService';
-import { IUsersService } from './services/interfaces/IUsersService';
-import { IImagesService } from './services/interfaces/IImagesService';
-import { MessageDataLoader } from './dataloaders/MessageDataLoader';
-import channelsResolver from './graphql/resolvers/channels';
-import messagesResolver from './graphql/resolvers/messages';
-import usersResolver from './graphql/resolvers/users';
-import imagesResolver from './graphql/resolvers/images';
+import { getResolvers } from './resolvers';
 
 const createGraphQLServer = async () => {
     const c = await container;
 
-    const channelsService = c.get<IChannelsService>(TYPE.ChannelsService);
-    const messagesService = c.get<IMessagesService>(TYPE.MessagesService);
-    const usersService = c.get<IUsersService>(TYPE.UsersService);
-    const imagesService = c.get<IImagesService>(TYPE.ImagesService);
-    const messageDataLoader = c.get<MessageDataLoader>(TYPE.MessageDataLoader);
-
-    const resolvers = mergeResolvers([
-        channelsResolver(channelsService, messageDataLoader),
-        messagesResolver(messagesService, messageDataLoader),
-        usersResolver(usersService),
-        imagesResolver(imagesService)
-    ]);
-
+    const resolvers = getResolvers(c);
     const schema = makeExecutableSchema({ typeDefs, resolvers });
     const server = new ApolloServer({
         context: ({ req, connection }) => {
-            if (connection) {
-                const { authToken } = connection.context;
-                return connection.context;
-            }
+            const token = connection
+                ? connection.context?.authToken
+                : req.headers.authorization;
 
-            const token = req.headers.authorization || '';
-            const user = AuthUtil.verifyToken(token);
-
+            const user = AuthUtil.validateTokenAndGetUser(token);
             return { user };
         },
         subscriptions: {

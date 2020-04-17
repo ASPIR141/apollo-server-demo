@@ -20,13 +20,9 @@ export class MongoDBProvider implements IMongoDBProvider {
     }
 
     private async connect() {
-        try {
-            this.client = await MongoClient.connect(this.uri, { useNewUrlParser: true, useUnifiedTopology: true });
-            this.database = this.client.db(this.databaseName);
-            return this.database;
-        } catch (error) {
-            return Promise.reject(error);
-        }
+        this.client = await MongoClient.connect(this.uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        this.database = this.client.db(this.databaseName);
+        return this.database;
     }
 
     private isConnected(): boolean {
