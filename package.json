@@ -10,7 +10,7 @@
     "lint": "node_modules/.bin/tslint --fix -c tslint.json 'src/**/*.ts'"
   },
   "dependencies": {
-    "apollo-server": "^2.9.3",
+    "apollo-server": "^2.25.4",
     "apollo-server-core": "^2.9.3",
     "aws-sdk": "^2.610.0",
     "bcrypt": "^3.0.8",
